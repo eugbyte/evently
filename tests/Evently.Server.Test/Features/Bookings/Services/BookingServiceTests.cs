@@ -3,51 +3,29 @@ using Evently.Server.Domains.Entities;
 using Evently.Server.Domains.Interfaces;
 using Evently.Server.Domains.Models;
 using Evently.Server.Features.Bookings.Services;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
+using Evently.Server.Test.Common.Setup;
 using Microsoft.Extensions.Options;
 using Moq;
 
 namespace Evently.Server.Test.Features.Bookings.Services;
 
-public class BookingServiceTests : IDisposable {
-	private readonly IBookingService _bookingService;
-	private readonly SqliteConnection _conn;
-	private readonly AppDbContext _dbContext;
+public class BookingServiceTests(DatabaseFixture dbFixture) : IClassFixture<DatabaseFixture> {
+	private readonly Mock<IObjectStorageService> _fileStorageServiceMock = new();
 
-	public BookingServiceTests() {
-		_conn = new SqliteConnection("Filename=:memory:");
-		_conn.Open();
-
-		// These options will be used by the context instances in this test suite, including the connection opened above.
-		DbContextOptions<AppDbContext> contextOptions = new DbContextOptionsBuilder<AppDbContext>()
-			.UseSqlite(_conn)
-			.Options;
-
-		// Create the schema and seed some data
-		AppDbContext dbContext = new(contextOptions);
-
-		dbContext.Database.EnsureCreated();
-		_dbContext = dbContext;
-
-		Mock<IMediaRenderer> mediaRendererMock = new();
-		Mock<IObjectStorageService> fileStorageServiceMock = new();
-		IOptions<Settings> options = Options.Create(new Settings());
-
-		_bookingService = new BookingService(mediaRendererMock.Object,
-			fileStorageServiceMock.Object,
-			validator: new BookingValidator(),
-			options,
-			_dbContext);
-	}
-
-	public void Dispose() {
-		_dbContext.Dispose();
-		_conn.Dispose();
-	}
+	private readonly Mock<IMediaRenderer> _mediaRendererMock = new();
+	private readonly IOptions<Settings> _options = Options.Create(new Settings());
 
 	[Fact]
 	public async Task CreateBooking_WithValidData_ShouldCreateBooking() {
+		AppDbContext dbContext = await dbFixture.GetDbContext();
+		BookingService bookingService = new(
+			_mediaRendererMock.Object,
+			_fileStorageServiceMock.Object,
+			validator: new BookingValidator(),
+			_options,
+			dbContext
+		);
+
 		DateTimeOffset now = DateTimeOffset.Now;
 		// Arrange
 		BookingReqDto bookingReqDto = new(
@@ -61,7 +39,7 @@ public class BookingServiceTests : IDisposable {
 		);
 
 		// Act
-		Booking result = await _bookingService.CreateBooking(bookingReqDto);
+		Booking result = await bookingService.CreateBooking(bookingReqDto);
 
 		// Assert
 		Assert.NotNull(result);
@@ -76,6 +54,15 @@ public class BookingServiceTests : IDisposable {
 
 	[Fact]
 	public async Task CreateBooking_WithEmptyAttendeeId_ShouldThrowException() {
+		AppDbContext dbContext = await dbFixture.GetDbContext();
+		BookingService bookingService = new(
+			_mediaRendererMock.Object,
+			_fileStorageServiceMock.Object,
+			validator: new BookingValidator(),
+			_options,
+			dbContext
+		);
+
 		DateTimeOffset now = DateTimeOffset.Now;
 		// Arrange
 		BookingReqDto invalidBookingReqDto = new(
@@ -89,13 +76,24 @@ public class BookingServiceTests : IDisposable {
 		);
 
 		// Act & Assert
-		await Assert.ThrowsAsync<ArgumentException>(() => _bookingService.CreateBooking(invalidBookingReqDto));
+		await Assert.ThrowsAsync<ArgumentException>(() =>
+			bookingService.CreateBooking(invalidBookingReqDto)
+		);
 	}
 
 	[Fact]
 	public async Task GetBooking_WithValidBookingId_ShouldReturnBooking() {
+		AppDbContext dbContext = await dbFixture.GetDbContext();
+		BookingService bookingService = new(
+			_mediaRendererMock.Object,
+			_fileStorageServiceMock.Object,
+			validator: new BookingValidator(),
+			_options,
+			dbContext
+		);
+
 		// Act
-		Booking? result = await _bookingService.GetBooking("book_abc123456");
+		Booking? result = await bookingService.GetBooking("book_abc123456");
 
 		// Assert
 		Assert.NotNull(result);
@@ -104,6 +102,15 @@ public class BookingServiceTests : IDisposable {
 
 	[Fact]
 	public async Task UpdateBooking_WithNonExistentBookingId_ShouldThrowKeyNotFoundException() {
+		AppDbContext dbContext = await dbFixture.GetDbContext();
+		BookingService bookingService = new(
+			_mediaRendererMock.Object,
+			_fileStorageServiceMock.Object,
+			validator: new BookingValidator(),
+			_options,
+			dbContext
+		);
+
 		// Arrange
 		const string nonExistentBookingId = "book_nonexistent";
 		BookingReqDto updateRequest = new(
@@ -118,14 +125,24 @@ public class BookingServiceTests : IDisposable {
 
 		// Act & Assert
 		await Assert.ThrowsAsync<KeyNotFoundException>(() =>
-			_bookingService.UpdateBooking(nonExistentBookingId, updateRequest));
+			bookingService.UpdateBooking(nonExistentBookingId, updateRequest)
+		);
 	}
 
 	[Fact]
 	public async Task UpdateBooking_WithCancellation_ShouldUpdateCancellationDateTime() {
+		AppDbContext dbContext = await dbFixture.GetDbContext();
+		BookingService bookingService = new(
+			_mediaRendererMock.Object,
+			_fileStorageServiceMock.Object,
+			validator: new BookingValidator(),
+			_options,
+			dbContext
+		);
+
 		// Arrange
 		DateTimeOffset cancellationTime = DateTimeOffset.Now.AddMinutes(30);
-		Booking? booking = await _bookingService.GetBooking("book_abc123456");
+		Booking? booking = await bookingService.GetBooking("book_abc123456");
 		Assert.NotNull(booking);
 
 		BookingReqDto updateRequest = new(
@@ -139,7 +156,7 @@ public class BookingServiceTests : IDisposable {
 		);
 
 		// Act
-		booking = await _bookingService.UpdateBooking("book_abc123456", updateRequest);
+		booking = await bookingService.UpdateBooking("book_abc123456", updateRequest);
 
 		// Assert
 		Assert.NotNull(booking);
