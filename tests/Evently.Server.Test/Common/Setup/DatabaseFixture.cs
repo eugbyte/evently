@@ -24,6 +24,6 @@ public class DatabaseFixture : IDisposable {
 
 	public void Dispose() {
 		_dbContext?.Dispose();
-		_container.DisposeAsync();
+		_container.DisposeAsync().AsTask().Wait();
 	}
 }
