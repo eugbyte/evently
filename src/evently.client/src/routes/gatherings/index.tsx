@@ -1,10 +1,10 @@
 ﻿import { createFileRoute } from "@tanstack/react-router";
 import { type JSX, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Category, Gathering } from "~/lib/domains/entities";
+import { Category, Gathering } from "~/domains/entities";
 import { getCategories, getGatherings, type GetGatheringsParams } from "~/lib/services";
 import { Card } from "~/lib/components";
-import type { PageResult } from "~/lib/domains/interfaces";
+import type { PageResult } from "~/domains/interfaces";
 import { FilterBar } from "~/routes/gatherings/-components";
 import { Icon } from "@iconify/react/dist/offline";
 

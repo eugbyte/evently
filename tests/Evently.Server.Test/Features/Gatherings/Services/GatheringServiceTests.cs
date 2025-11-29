@@ -1,5 +1,4 @@
-﻿using Evently.Server.Common.Adapters.Data;
-using Evently.Server.Common.Data;
+﻿using Evently.Server.Common.Data;
 using Evently.Server.Domains.Entities;
 using Evently.Server.Domains.Interfaces;
 using Evently.Server.Domains.Models;
