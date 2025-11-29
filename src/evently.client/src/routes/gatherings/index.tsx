@@ -12,16 +12,16 @@ export const Route = createFileRoute("/gatherings/")({
 	component: GatheringsPage,
 	loader: async () => {
 		let categories: Category[] = [];
-        let attempts = 2;
-        while (attempts > 0) {
-            try {
-                categories =  await getCategories();
-                break;
-            } catch (error) {
-                attempts -= 1;
-                console.error(error);
-            }
-        }
+		let attempts = 2;
+		while (attempts > 0) {
+			try {
+				categories = await getCategories();
+				break;
+			} catch (error) {
+				attempts -= 1;
+				console.error(error);
+			}
+		}
 		return { categories };
 	},
 	pendingComponent: () => (
