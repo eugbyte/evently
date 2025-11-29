@@ -3,7 +3,8 @@ using Evently.Server.Domains.Models;
 
 namespace Evently.Server.Domains.Interfaces;
 
-public interface IGatheringService {
+public interface IGatheringService
+{
 	Task<Gathering?> GetGathering(long gatheringId);
 
 	Task<PageResult<Gathering>> GetGatherings(
@@ -17,7 +18,8 @@ public interface IGatheringService {
 		bool? isCancelled,
 		HashSet<long>? categoryIds,
 		int? offset,
-		int? limit);
+		int? limit
+	);
 
 	Task<Gathering> CreateGathering(GatheringReqDto gatheringReqDto);
 	Task<Gathering> UpdateGathering(long gatheringId, GatheringReqDto gatheringReqDto);

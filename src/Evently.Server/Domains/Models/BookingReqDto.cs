@@ -7,4 +7,5 @@ public sealed record BookingReqDto(
 	DateTimeOffset CreationDateTime,
 	DateTimeOffset? CheckInDateTime,
 	DateTimeOffset? CheckoutDateTime,
-	DateTimeOffset? CancellationDateTime);
+	DateTimeOffset? CancellationDateTime
+);

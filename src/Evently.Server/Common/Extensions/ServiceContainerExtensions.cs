@@ -3,9 +3,13 @@ using Microsoft.Extensions.Options;
 
 namespace Evently.Server.Common.Extensions;
 
-public static class ServiceContainerExtensions {
-	public static IOptions<Settings> LoadAppConfiguration(this IServiceCollection services,
-		ConfigurationManager configuration) {
+public static class ServiceContainerExtensions
+{
+	public static IOptions<Settings> LoadAppConfiguration(
+		this IServiceCollection services,
+		ConfigurationManager configuration
+	)
+	{
 		// load .env variables, in addition to appsettings.json that is loaded by default
 		configuration.AddEnvironmentVariables();
 

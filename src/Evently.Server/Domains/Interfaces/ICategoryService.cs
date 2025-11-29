@@ -3,7 +3,8 @@ using Evently.Server.Domains.Models;
 
 namespace Evently.Server.Domains.Interfaces;
 
-public interface ICategoryService {
+public interface ICategoryService
+{
 	Task<PageResult<Category>> GetCategories(long? gatheringId, bool? approved);
 	Task<Category> CreateCategory(Category category);
 }

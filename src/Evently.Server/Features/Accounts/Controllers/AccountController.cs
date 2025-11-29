@@ -1,4 +1,5 @@
-﻿using Evently.Server.Common.Extensions;
+﻿using System.Security.Claims;
+using Evently.Server.Common.Extensions;
 using Evently.Server.Domains.Entities;
 using Evently.Server.Domains.Exceptions;
 using Evently.Server.Domains.Interfaces;
@@ -7,7 +8,6 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace Evently.Server.Features.Accounts.Controllers;
 
@@ -16,8 +16,11 @@ namespace Evently.Server.Features.Accounts.Controllers;
 [Route("api/v1/Auth/external")]
 public sealed class AccountController(
 	IAccountsService accountService,
-	ILogger<AccountController> logger) : ControllerBase {
-	private readonly Dictionary<string, string> _authSchemes = new() {
+	ILogger<AccountController> logger
+) : ControllerBase
+{
+	private readonly Dictionary<string, string> _authSchemes = new()
+	{
 		{ "google", GoogleDefaults.AuthenticationScheme },
 		{ "microsoft", MicrosoftAccountDefaults.AuthenticationScheme },
 	};
@@ -34,16 +37,15 @@ public sealed class AccountController(
 	 * 8. Callback() method redirects to FE specified callback URL.
 	 */
 	[HttpGet("{provider}/login")]
-	public IActionResult Login(string provider, string? originUrl = "") {
+	public IActionResult Login(string provider, string? originUrl = "")
+	{
 		Uri rootUri = Request.RootUri();
 		string uri = Url.Action("Callback", "Account", values: new { provider }) ?? "";
-		UriBuilder combined = new(rootUri) {
-			Path = uri,
-			Query = $"originUrl={originUrl}",
-		};
+		UriBuilder combined = new(rootUri) { Path = uri, Query = $"originUrl={originUrl}" };
 
 		logger.LogCallbackUrl(combined.Uri.AbsoluteUri);
-		AuthenticationProperties properties = new() {
+		AuthenticationProperties properties = new()
+		{
 			RedirectUri = combined.Uri.AbsoluteUri,
 			IsPersistent = true,
 		};
@@ -51,33 +53,48 @@ public sealed class AccountController(
 	}
 
 	[HttpGet("{provider}/callback")]
-	public async Task<ActionResult<int>> Callback(string provider, [FromQuery] string originUrl = "") {
-		AuthenticateResult result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+	public async Task<ActionResult<int>> Callback(
+		string provider,
+		[FromQuery] string originUrl = ""
+	)
+	{
+		AuthenticateResult result = await HttpContext.AuthenticateAsync(
+			GoogleDefaults.AuthenticationScheme
+		);
 
-		if (!result.Succeeded || result.Principal is null) {
+		if (!result.Succeeded || result.Principal is null)
+		{
 			return Unauthorized();
 		}
 
 		ClaimsPrincipal claimsPrincipal = result.Principal;
-		if (claimsPrincipal == null) {
+		if (claimsPrincipal == null)
+		{
 			throw new ExternalLoginProviderException(provider, "ClaimsPrincipal is null");
 		}
 
-		await accountService.ExternalLogin(claimsPrincipal,
-			loginProvider: _authSchemes.GetValueOrDefault(provider) ?? "");
+		await accountService.ExternalLogin(
+			claimsPrincipal,
+			loginProvider: _authSchemes.GetValueOrDefault(provider) ?? ""
+		);
 		return Redirect(originUrl);
 	}
 
 	[HttpGet("account", Name = "GetAccount from Cookie")]
-	public async Task<ActionResult> GetAccount() {
-		AuthenticateResult result = await HttpContext.AuthenticateAsync(IdentityConstants.ExternalScheme);
-		if (!result.Succeeded) {
+	public async Task<ActionResult> GetAccount()
+	{
+		AuthenticateResult result = await HttpContext.AuthenticateAsync(
+			IdentityConstants.ExternalScheme
+		);
+		if (!result.Succeeded)
+		{
 			return Unauthorized();
 		}
 
 		ClaimsPrincipal principal = result.Principal ?? new ClaimsPrincipal();
 		Account? user = await accountService.FindByClaimsPrincipalAsync(principal);
-		if (user is null) {
+		if (user is null)
+		{
 			return NotFound(new { message = "User not found" });
 		}
 
@@ -85,16 +102,19 @@ public sealed class AccountController(
 	}
 
 	[HttpPost("logout")]
-	public async Task<ActionResult> Logout(string? redirectUrl = "") {
+	public async Task<ActionResult> Logout(string? redirectUrl = "")
+	{
 		// Sign out of an external identity provider (if used)
-		AuthenticationProperties authProps = new() {
+		AuthenticationProperties authProps = new()
+		{
 			RedirectUri = redirectUrl,
 			IsPersistent = true,
 		};
 		await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme, authProps);
 		// Manually remove the authentication cookie
 		// Delete each cookie
-		foreach (string cookieName in Request.Cookies.Keys) {
+		foreach (string cookieName in Request.Cookies.Keys)
+		{
 			Response.Cookies.Delete(cookieName);
 		}
 

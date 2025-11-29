@@ -3,15 +3,22 @@ using Evently.Server.Domains.Models;
 
 namespace Evently.Server.Common.Extensions;
 
-public static class MapperExtension {
-	public static Gathering ToGathering(this GatheringReqDto gatheringReqDto) {
-		List<GatheringCategoryDetail> gatheringCategoryDetails = gatheringReqDto.GatheringCategoryDetails
-			.Select((detail) => new GatheringCategoryDetail {
-				GatheringId = gatheringReqDto.GatheringId,
-				CategoryId = detail.CategoryId,
-			})
+public static class MapperExtension
+{
+	public static Gathering ToGathering(this GatheringReqDto gatheringReqDto)
+	{
+		List<GatheringCategoryDetail> gatheringCategoryDetails = gatheringReqDto
+			.GatheringCategoryDetails.Select(
+				(detail) =>
+					new GatheringCategoryDetail
+					{
+						GatheringId = gatheringReqDto.GatheringId,
+						CategoryId = detail.CategoryId,
+					}
+			)
 			.ToList();
-		Gathering gathering = new() {
+		Gathering gathering = new()
+		{
 			GatheringId = gatheringReqDto.GatheringId,
 			Name = gatheringReqDto.Name,
 			Description = gatheringReqDto.Description,
@@ -26,8 +33,10 @@ public static class MapperExtension {
 		return gathering;
 	}
 
-	public static Booking ToBooking(this BookingReqDto bookingReqDto) {
-		return new Booking {
+	public static Booking ToBooking(this BookingReqDto bookingReqDto)
+	{
+		return new Booking
+		{
 			BookingId = bookingReqDto.BookingId,
 			AttendeeId = bookingReqDto.AttendeeId,
 			GatheringId = bookingReqDto.GatheringId,
@@ -38,7 +47,8 @@ public static class MapperExtension {
 		};
 	}
 
-	public static BookingReqDto ToBookingDto(this Booking booking) {
+	public static BookingReqDto ToBookingDto(this Booking booking)
+	{
 		return new BookingReqDto(
 			booking.BookingId,
 			booking.AttendeeId,
@@ -50,7 +60,8 @@ public static class MapperExtension {
 		);
 	}
 
-	public static AccountDto ToAccountDto(this Account account) {
+	public static AccountDto ToAccountDto(this Account account)
+	{
 		return new AccountDto(
 			account.Id,
 			Email: account.Email ?? string.Empty,
