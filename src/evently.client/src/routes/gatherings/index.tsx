@@ -11,7 +11,12 @@ import { Icon } from "@iconify/react/dist/offline";
 export const Route = createFileRoute("/gatherings/")({
 	component: GatheringsPage,
 	loader: async () => {
-		const categories: Category[] = await getCategories();
+		let categories: Category[] = [];
+        try {
+            categories =  await getCategories();
+        } catch (error) {
+            console.error(error);
+        }
 		return { categories };
 	},
 	pendingComponent: () => (
