@@ -1,5 +1,5 @@
 import type { JSX } from "react";
-import { Booking } from "~/lib/domains/entities";
+import { Booking } from "~/domains/entities";
 import { toIsoDateTimeString } from "~/lib/services";
 import { Icon } from "@iconify/react";
 

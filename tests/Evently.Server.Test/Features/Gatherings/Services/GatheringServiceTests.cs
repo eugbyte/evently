@@ -1,276 +1,306 @@
-﻿using Evently.Server.Common.Adapters.Data;
-using Evently.Server.Common.Domains.Entities;
-using Evently.Server.Common.Domains.Interfaces;
-using Evently.Server.Common.Domains.Models;
+﻿using Evently.Server.Common.Data;
+using Evently.Server.Domains.Entities;
+using Evently.Server.Domains.Interfaces;
+using Evently.Server.Domains.Models;
 using Evently.Server.Features.Gatherings.Services;
+using Evently.Server.Test.Common.Setup;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 namespace Evently.Server.Test.Features.Gatherings.Services;
 
-public class GatheringServiceTests : IDisposable {
-	private readonly SqliteConnection _conn;
-	private readonly AppDbContext _dbContext;
-	private readonly IGatheringService _gatheringService;
+public class GatheringServiceTests(DatabaseFixture dbFixture) : IClassFixture<DatabaseFixture>
+{
 
-	public GatheringServiceTests() {
-		_conn = new SqliteConnection("Filename=:memory:");
-		_conn.Open();
+    [Fact]
+    public async Task CreateGathering_WithValidData_ShouldCreateGathering() {
+        AppDbContext dbContext = await dbFixture.GetDbContext();
+        GatheringService gatheringService = new(dbContext, validator: new GatheringValidator());
+        
+        // Arrange
+        GatheringReqDto gatheringReqDto = new(
+            GatheringId: 0,
+            "Test Gathering",
+            "Test Description",
+            Start: DateTimeOffset.UtcNow.AddDays(1),
+            End: DateTimeOffset.UtcNow.AddDays(1).AddHours(2),
+            CancellationDateTime: null,
+            "Test Location",
+            "organizer123",
+            "test-cover.jpg",
+            GatheringCategoryDetails: []
+        );
 
-		// These options will be used by the context instances in this test suite, including the connection opened above.
-		DbContextOptions<AppDbContext> contextOptions = new DbContextOptionsBuilder<AppDbContext>()
-			.UseSqlite(_conn)
-			.Options;
+        // Act
+        Gathering result = await gatheringService.CreateGathering(gatheringReqDto);
 
-		// Create the schema and seed some data
-		AppDbContext dbContext = new(contextOptions);
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(gatheringReqDto.Name, result.Name);
+        Assert.Equal(gatheringReqDto.Description, result.Description);
+        Assert.Equal(gatheringReqDto.Start, result.Start);
+        Assert.Equal(gatheringReqDto.End, result.End);
+        Assert.Equal(gatheringReqDto.Location, result.Location);
+        Assert.Equal(gatheringReqDto.OrganiserId, result.OrganiserId);
 
-		dbContext.Database.EnsureCreated();
-		_dbContext = dbContext;
+        // Verify it was saved to database
+        Gathering? savedGathering = await dbContext.Gatherings.FirstOrDefaultAsync(g =>
+            g.GatheringId == result.GatheringId
+        );
+        Assert.NotNull(savedGathering);
+    }
 
-		_gatheringService = new GatheringService(_dbContext, validator: new GatheringValidator());
-	}
+    [Fact]
+    public async Task CreateGathering_WithInvalidData_ShouldThrowArgumentException()
+    {
+        AppDbContext dbContext = await dbFixture.GetDbContext();
+        GatheringService gatheringService = new(dbContext, validator: new GatheringValidator());
 
-	public void Dispose() {
-		_dbContext.Dispose();
-		_conn.Dispose();
-	}
+        // Arrange
+        GatheringReqDto invalidGatheringReqDto = new(
+            GatheringId: 0,
+            "", // Invalid empty name
+            "Test Description",
+            Start: DateTimeOffset.UtcNow.AddDays(1),
+            End: DateTimeOffset.UtcNow.AddDays(1).AddHours(2),
+            CancellationDateTime: null,
+            "Test Location",
+            "organizer123",
+            CoverSrc: null,
+            GatheringCategoryDetails: []
+        );
 
-	[Fact]
-	public async Task CreateGathering_WithValidData_ShouldCreateGathering() {
-		// Arrange
-		GatheringReqDto gatheringReqDto = new(
-			GatheringId: 0,
-			"Test Gathering",
-			"Test Description",
-			Start: DateTimeOffset.UtcNow.AddDays(1),
-			End: DateTimeOffset.UtcNow.AddDays(1).AddHours(2),
-			CancellationDateTime: null,
-			"Test Location",
-			"organizer123",
-			"test-cover.jpg",
-			GatheringCategoryDetails: []
-		);
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            gatheringService.CreateGathering(invalidGatheringReqDto)
+        );
+    }
 
-		// Act
-		Gathering result = await _gatheringService.CreateGathering(gatheringReqDto);
+    [Fact]
+    public async Task GetGathering_WithExistingId_ShouldReturnGathering()
+    {
+        AppDbContext dbContext = await dbFixture.GetDbContext();
+        GatheringService gatheringService = new(dbContext, validator: new GatheringValidator());
 
-		// Assert
-		Assert.NotNull(result);
-		Assert.Equal(gatheringReqDto.Name, result.Name);
-		Assert.Equal(gatheringReqDto.Description, result.Description);
-		Assert.Equal(gatheringReqDto.Start, result.Start);
-		Assert.Equal(gatheringReqDto.End, result.End);
-		Assert.Equal(gatheringReqDto.Location, result.Location);
-		Assert.Equal(gatheringReqDto.OrganiserId, result.OrganiserId);
+        // Arrange
+        Gathering gathering = new()
+        {
+            Name = "Test Gathering",
+            Description = "Test Description",
+            Start = DateTimeOffset.UtcNow.AddDays(1),
+            End = DateTimeOffset.UtcNow.AddDays(1).AddHours(2),
+            Location = "Test Location",
+            OrganiserId = "organizer123",
+            Bookings = [],
+            GatheringCategoryDetails = [],
+        };
 
-		// Verify it was saved to database
-		Gathering? savedGathering = await _dbContext.Gatherings.FirstOrDefaultAsync(g => g.GatheringId == result.GatheringId);
-		Assert.NotNull(savedGathering);
-	}
+        dbContext.Gatherings.Add(gathering);
+        await dbContext.SaveChangesAsync();
 
-	[Fact]
-	public async Task CreateGathering_WithInvalidData_ShouldThrowArgumentException() {
-		// Arrange
-		GatheringReqDto invalidGatheringReqDto = new(
-			GatheringId: 0,
-			"", // Invalid empty name
-			"Test Description",
-			Start: DateTimeOffset.UtcNow.AddDays(1),
-			End: DateTimeOffset.UtcNow.AddDays(1).AddHours(2),
-			CancellationDateTime: null,
-			"Test Location",
-			"organizer123",
-			CoverSrc: null,
-			GatheringCategoryDetails: []
-		);
+        // Act
+        Gathering? result = await gatheringService.GetGathering(gathering.GatheringId);
 
-		// Act & Assert
-		await Assert.ThrowsAsync<ArgumentException>(() => _gatheringService.CreateGathering(invalidGatheringReqDto));
-	}
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(gathering.GatheringId, result.GatheringId);
+        Assert.Equal(gathering.Name, result.Name);
+        Assert.Equal(gathering.Description, result.Description);
+    }
 
-	[Fact]
-	public async Task GetGathering_WithExistingId_ShouldReturnGathering() {
-		// Arrange
-		Gathering gathering = new() {
-			Name = "Test Gathering",
-			Description = "Test Description",
-			Start = DateTimeOffset.UtcNow.AddDays(1),
-			End = DateTimeOffset.UtcNow.AddDays(1).AddHours(2),
-			Location = "Test Location",
-			OrganiserId = "organizer123",
-			Bookings = [],
-			GatheringCategoryDetails = [],
-		};
+    [Fact]
+    public async Task GetGathering_WithNonExistentId_ShouldReturnNull()
+    {
+        AppDbContext dbContext = await dbFixture.GetDbContext();
+        GatheringService gatheringService = new(dbContext, validator: new GatheringValidator());
 
-		_dbContext.Gatherings.Add(gathering);
-		await _dbContext.SaveChangesAsync();
+        // Arrange
+        const long nonExistentId = 999;
 
-		// Act
-		Gathering? result = await _gatheringService.GetGathering(gathering.GatheringId);
+        // Act
+        Gathering? result = await gatheringService.GetGathering(nonExistentId);
 
-		// Assert
-		Assert.NotNull(result);
-		Assert.Equal(gathering.GatheringId, result.GatheringId);
-		Assert.Equal(gathering.Name, result.Name);
-		Assert.Equal(gathering.Description, result.Description);
-	}
+        // Assert
+        Assert.Null(result);
+    }
 
-	[Fact]
-	public async Task GetGathering_WithNonExistentId_ShouldReturnNull() {
-		// Arrange
-		const long nonExistentId = 999;
+    [Fact]
+    public async Task GetGatherings_WithNameFilter_ShouldReturnFilteredResults()
+    {
+        AppDbContext dbContext = await dbFixture.GetDbContext();
+        GatheringService gatheringService = new(dbContext, validator: new GatheringValidator());
 
-		// Act
-		Gathering? result = await _gatheringService.GetGathering(nonExistentId);
+        // Arrange
+        List<Gathering> gatherings =
+        [
+            new()
+            {
+                Name = "XYZ Conference",
+                Description = "Description 1",
+                Start = DateTimeOffset.UtcNow.AddDays(1),
+                End = DateTimeOffset.UtcNow.AddDays(1).AddHours(2),
+                Location = "Location 1",
+                OrganiserId = "organizer1",
+                Bookings = [],
+                GatheringCategoryDetails = [],
+            },
+            new()
+            {
+                Name = "Art Workshop",
+                Description = "Description 2",
+                Start = DateTimeOffset.UtcNow.AddDays(2),
+                End = DateTimeOffset.UtcNow.AddDays(2).AddHours(2),
+                Location = "Location 2",
+                OrganiserId = "organizer2",
+                Bookings = [],
+                GatheringCategoryDetails = [],
+            },
+        ];
 
-		// Assert
-		Assert.Null(result);
-	}
+        dbContext.Gatherings.AddRange(gatherings);
+        await dbContext.SaveChangesAsync();
 
-	[Fact]
-	public async Task GetGatherings_WithNameFilter_ShouldReturnFilteredResults() {
-		// Arrange
-		List<Gathering> gatherings = [
-			new() {
-				Name = "XYZ Conference",
-				Description = "Description 1",
-				Start = DateTimeOffset.UtcNow.AddDays(1),
-				End = DateTimeOffset.UtcNow.AddDays(1).AddHours(2),
-				Location = "Location 1",
-				OrganiserId = "organizer1",
-				Bookings = [],
-				GatheringCategoryDetails = [],
-			},
+        // Act
+        PageResult<Gathering> result = await gatheringService.GetGatherings(
+            attendeeId: null,
+            organiserId: null,
+            "XYZ",
+            startDateBefore: null,
+            startDateAfter: null,
+            endDateBefore: null,
+            endDateAfter: null,
+            isCancelled: null,
+            categoryIds: [],
+            offset: null,
+            limit: null
+        );
 
-			new() {
-				Name = "Art Workshop",
-				Description = "Description 2",
-				Start = DateTimeOffset.UtcNow.AddDays(2),
-				End = DateTimeOffset.UtcNow.AddDays(2).AddHours(2),
-				Location = "Location 2",
-				OrganiserId = "organizer2",
-				Bookings = [],
-				GatheringCategoryDetails = [],
-			},
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(expected: 1, result.TotalCount);
+        Assert.Equal("XYZ Conference", result.Items.First().Name);
+    }
 
-		];
+    [Fact]
+    public async Task UpdateGathering_WithValidData_ShouldUpdateGathering()
+    {
+        AppDbContext dbContext = await dbFixture.GetDbContext();
+        GatheringService gatheringService = new(dbContext, validator: new GatheringValidator());
 
-		_dbContext.Gatherings.AddRange(gatherings);
-		await _dbContext.SaveChangesAsync();
+        // Arrange
+        Gathering gathering = new()
+        {
+            Name = "Original Name",
+            Description = "Original Description",
+            Start = DateTimeOffset.UtcNow.AddDays(1),
+            End = DateTimeOffset.UtcNow.AddDays(1).AddHours(2),
+            Location = "Original Location",
+            OrganiserId = "organizer123",
+            GatheringCategoryDetails = [],
+        };
 
-		// Act
-		PageResult<Gathering> result = await _gatheringService.GetGatherings(attendeeId: null,
-			organiserId: null,
-			"XYZ",
-			startDateBefore: null,
-			startDateAfter: null,
-			endDateBefore: null,
-			endDateAfter: null,
-			isCancelled: null,
-			categoryIds: [],
-			offset: null,
-			limit: null);
+        dbContext.Gatherings.Add(gathering);
+        await dbContext.SaveChangesAsync();
 
-		// Assert
-		Assert.NotNull(result);
-		Assert.Equal(expected: 1, result.TotalCount);
-		Assert.Equal("XYZ Conference", result.Items.First().Name);
-	}
+        GatheringReqDto updateDto = new(
+            gathering.GatheringId,
+            "Updated Name",
+            "Updated Description",
+            Start: DateTimeOffset.UtcNow.AddDays(2),
+            End: DateTimeOffset.UtcNow.AddDays(2).AddHours(3),
+            CancellationDateTime: null,
+            "Updated Location",
+            "organizer123",
+            "updated-cover.jpg",
+            GatheringCategoryDetails: []
+        );
 
-	[Fact]
-	public async Task UpdateGathering_WithValidData_ShouldUpdateGathering() {
-		// Arrange
-		Gathering gathering = new() {
-			Name = "Original Name",
-			Description = "Original Description",
-			Start = DateTimeOffset.UtcNow.AddDays(1),
-			End = DateTimeOffset.UtcNow.AddDays(1).AddHours(2),
-			Location = "Original Location",
-			OrganiserId = "organizer123",
-			GatheringCategoryDetails = [],
-		};
+        // Act
+        Gathering result = await gatheringService.UpdateGathering(
+            gathering.GatheringId,
+            updateDto
+        );
 
-		_dbContext.Gatherings.Add(gathering);
-		await _dbContext.SaveChangesAsync();
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal("Updated Name", result.Name);
+        Assert.Equal("Updated Description", result.Description);
+        Assert.Equal(updateDto.Start, result.Start);
+        Assert.Equal(updateDto.End, result.End);
+        Assert.Equal("Updated Location", result.Location);
+        Assert.Equal("updated-cover.jpg", result.CoverSrc);
+    }
 
-		GatheringReqDto updateDto = new(
-			gathering.GatheringId,
-			"Updated Name",
-			"Updated Description",
-			Start: DateTimeOffset.UtcNow.AddDays(2),
-			End: DateTimeOffset.UtcNow.AddDays(2).AddHours(3),
-			CancellationDateTime: null,
-			"Updated Location",
-			"organizer123",
-			"updated-cover.jpg",
-			GatheringCategoryDetails: []
-		);
+    [Fact]
+    public async Task UpdateGathering_WithNonExistentId_ShouldThrowKeyNotFoundException()
+    {
+        AppDbContext dbContext = await dbFixture.GetDbContext();
+        GatheringService gatheringService = new(dbContext, validator: new GatheringValidator());
 
-		// Act
-		Gathering result = await _gatheringService.UpdateGathering(gathering.GatheringId, updateDto);
+        // Arrange
+        GatheringReqDto updateDto = new(
+            GatheringId: 999,
+            "Updated Name",
+            "Updated Description",
+            Start: DateTimeOffset.UtcNow.AddDays(2),
+            End: DateTimeOffset.UtcNow.AddDays(2).AddHours(3),
+            CancellationDateTime: null,
+            "Updated Location",
+            "organizer123",
+            CoverSrc: null,
+            GatheringCategoryDetails: []
+        );
 
-		// Assert
-		Assert.NotNull(result);
-		Assert.Equal("Updated Name", result.Name);
-		Assert.Equal("Updated Description", result.Description);
-		Assert.Equal(updateDto.Start, result.Start);
-		Assert.Equal(updateDto.End, result.End);
-		Assert.Equal("Updated Location", result.Location);
-		Assert.Equal("updated-cover.jpg", result.CoverSrc);
-	}
+        // Act & Assert
+        await Assert.ThrowsAsync<KeyNotFoundException>(() =>
+            gatheringService.UpdateGathering(gatheringId: 999, updateDto)
+        );
+    }
 
-	[Fact]
-	public async Task UpdateGathering_WithNonExistentId_ShouldThrowKeyNotFoundException() {
-		// Arrange
-		GatheringReqDto updateDto = new(
-			GatheringId: 999,
-			"Updated Name",
-			"Updated Description",
-			Start: DateTimeOffset.UtcNow.AddDays(2),
-			End: DateTimeOffset.UtcNow.AddDays(2).AddHours(3),
-			CancellationDateTime: null,
-			"Updated Location",
-			"organizer123",
-			CoverSrc: null,
-			GatheringCategoryDetails: []
-		);
+    [Fact]
+    public async Task DeleteGathering_WithExistingId_ShouldDeleteGathering()
+    {
+        AppDbContext dbContext = await dbFixture.GetDbContext();
+        GatheringService gatheringService = new(dbContext, validator: new GatheringValidator());
 
-		// Act & Assert
-		await Assert.ThrowsAsync<KeyNotFoundException>(() => _gatheringService.UpdateGathering(gatheringId: 999, updateDto));
-	}
+        // Arrange
+        Gathering gathering = new()
+        {
+            Name = "Test Gathering",
+            Description = "Test Description",
+            Start = DateTimeOffset.UtcNow.AddDays(1),
+            End = DateTimeOffset.UtcNow.AddDays(1).AddHours(2),
+            Location = "Test Location",
+            OrganiserId = "organizer123",
+            GatheringCategoryDetails = [],
+        };
 
-	[Fact]
-	public async Task DeleteGathering_WithExistingId_ShouldDeleteGathering() {
-		// Arrange
-		Gathering gathering = new() {
-			Name = "Test Gathering",
-			Description = "Test Description",
-			Start = DateTimeOffset.UtcNow.AddDays(1),
-			End = DateTimeOffset.UtcNow.AddDays(1).AddHours(2),
-			Location = "Test Location",
-			OrganiserId = "organizer123",
-			GatheringCategoryDetails = [],
-		};
+        dbContext.Gatherings.Add(gathering);
+        await dbContext.SaveChangesAsync();
+        long gatheringId = gathering.GatheringId;
 
-		_dbContext.Gatherings.Add(gathering);
-		await _dbContext.SaveChangesAsync();
-		long gatheringId = gathering.GatheringId;
+        // Act
+        await gatheringService.DeleteGathering(gatheringId);
 
-		// Act
-		await _gatheringService.DeleteGathering(gatheringId);
+        // Assert
+        Gathering? deletedGathering = await dbContext.Gatherings.FirstOrDefaultAsync(g =>
+            g.GatheringId == gatheringId
+        );
+        Assert.Null(deletedGathering);
+    }
 
-		// Assert
-		Gathering? deletedGathering = await _dbContext.Gatherings.FirstOrDefaultAsync(g => g.GatheringId == gatheringId);
-		Assert.Null(deletedGathering);
-	}
+    [Fact]
+    public async Task DeleteGathering_WithNonExistentId_ShouldThrowInvalidOperationException()
+    {
+        AppDbContext dbContext = await dbFixture.GetDbContext();
+        GatheringService gatheringService = new(dbContext, validator: new GatheringValidator());
 
-	[Fact]
-	public async Task DeleteGathering_WithNonExistentId_ShouldThrowInvalidOperationException() {
-		// Arrange
-		const long nonExistentId = 999;
+        // Arrange
+        const long nonExistentId = 999;
 
-		// Act & Assert
-		await Assert.ThrowsAsync<InvalidOperationException>(() => _gatheringService.DeleteGathering(nonExistentId));
-	}
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            gatheringService.DeleteGathering(nonExistentId)
+        );
+    }
 }

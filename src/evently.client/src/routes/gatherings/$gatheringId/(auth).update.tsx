@@ -1,5 +1,5 @@
 ﻿import { createFileRoute } from "@tanstack/react-router";
-import { Category, Gathering } from "~/lib/domains/entities";
+import { Category, Gathering } from "~/domains/entities";
 import { type JSX, useEffect, useState } from "react";
 import {
 	authenticateRoute,
@@ -13,7 +13,7 @@ import {
 	type GatheringForm as IGatheringForm,
 	useGatheringForm
 } from "~/routes/gatherings/-services";
-import { GatheringReqDto, ToastContent } from "~/lib/domains/models";
+import { GatheringReqDto, ToastContent } from "~/domains/models";
 import { GatheringForm } from "~/routes/gatherings/-components";
 
 export const Route = createFileRoute("/gatherings/$gatheringId/(auth)/update")({

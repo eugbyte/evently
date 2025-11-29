@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Scanner } from "./-components";
 import { checkInBooking, sleep } from "~/lib/services";
-import { Booking } from "~/lib/domains/entities";
+import { Booking } from "~/domains/entities";
 import { useCallback, useState } from "react";
-import { ToastContent, ToastStatus, toastStyles } from "~/lib/domains/models";
+import { ToastContent, ToastStatus, toastStyles } from "~/domains/models";
 import { useForm } from "@tanstack/react-form";
 import { FieldErrMsg as FieldInfo } from "~/lib/components";
 

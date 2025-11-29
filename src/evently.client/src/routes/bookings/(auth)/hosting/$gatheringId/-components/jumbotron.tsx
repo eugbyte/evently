@@ -1,7 +1,7 @@
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { DateTime } from "luxon";
 import type { JSX } from "react";
-import { Gathering } from "~/lib/domains/entities";
+import { Gathering } from "~/domains/entities";
 
 interface JumbotronProps {
 	gathering: Gathering;

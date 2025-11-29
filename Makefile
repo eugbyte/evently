@@ -15,7 +15,7 @@ remove-migration:
 	
 fmt:
 	dotnet tool restore
-	jb cleanupcode ./src/Evently.Server/**/*
+	cd src/Evently.Server && dotnet csharpier format .
 	cd src/evently.client && npm run fmt
     
 docker-build-no-cache:

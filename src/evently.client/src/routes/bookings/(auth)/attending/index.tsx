@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { type JSX, useState } from "react";
-import { Booking, Gathering } from "~/lib/domains/entities";
+import { Booking, Gathering } from "~/domains/entities";
 import { getBookings, type GetBookingsParams } from "~/lib/services";
 import { Card, Tabs, TabState } from "~/lib/components";
 import cloneDeep from "lodash.clonedeep";

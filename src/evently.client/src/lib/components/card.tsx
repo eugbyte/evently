@@ -2,7 +2,7 @@
 import Placeholder2 from "~/lib/assets/event_placeholder_2.png";
 import { type JSX } from "react";
 import { Link } from "@tanstack/react-router";
-import { Category, Gathering } from "~/lib/domains/entities";
+import { Category, Gathering } from "~/domains/entities";
 import { Icon } from "@iconify/react";
 import { DateTime } from "luxon";
 import { hashString } from "~/lib/services";

@@ -1,6 +1,6 @@
 # See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
 # https://learn.microsoft.com/en-us/dotnet/core/docker/build-container?tabs=windows&pivots=dotnet-9-0#create-the-dockerfile
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 RUN apt-get update
 RUN apt-get install curl --yes
 RUN curl -sL https://deb.nodesource.com/setup_20.x | bash
@@ -19,7 +19,7 @@ RUN ls
 RUN dotnet publish ./src/Evently.Server/Evently.Server.csproj -c Release -o publish -p:UseAppHost=false
 
 # Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS run
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS run
 WORKDIR /App/server
 
 COPY --from=build /App/publish .

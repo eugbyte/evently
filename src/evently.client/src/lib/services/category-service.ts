@@ -1,4 +1,4 @@
-﻿import { Category } from "~/lib/domains/entities";
+﻿import { Category } from "~/domains/entities";
 import axios from "axios";
 
 export async function getCategories(): Promise<Category[]> {

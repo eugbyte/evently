@@ -3,10 +3,10 @@ import { compressImage, type GatheringForm as IGatheringForm } from "../-service
 import { FieldErrMsg as FieldInfo } from "~/lib/components";
 import { Icon } from "@iconify/react";
 import { DateTime } from "luxon";
-import { GatheringCategoryDetailReqDto, GatheringReqDto, ToastContent } from "~/lib/domains/models";
+import { GatheringCategoryDetailReqDto, GatheringReqDto, ToastContent } from "~/domains/models";
 import { useRouter } from "@tanstack/react-router";
 import { toIsoDateTimeString } from "~/lib/services";
-import { Category } from "~/lib/domains/entities";
+import { Category } from "~/domains/entities";
 
 interface GatheringFormProps {
 	file: File | null;

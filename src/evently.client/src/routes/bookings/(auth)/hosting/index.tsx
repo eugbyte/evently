@@ -1,6 +1,6 @@
 ﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import { type JSX, useState } from "react";
-import { Gathering } from "~/lib/domains/entities";
+import { Gathering } from "~/domains/entities";
 import { getGatherings, type GetGatheringsParams } from "~/lib/services";
 import { Card, Tabs, TabState } from "~/lib/components";
 import { useQuery } from "@tanstack/react-query";
