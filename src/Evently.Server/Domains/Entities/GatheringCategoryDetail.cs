@@ -8,8 +8,8 @@ namespace Evently.Server.Domains.Entities;
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 public class GatheringCategoryDetail
 {
-	public long GatheringId { get; set; }
-	public Gathering? Gathering { get; set; }
-	public long CategoryId { get; set; }
-	public Category? Category { get; set; }
+    public long GatheringId { get; set; }
+    public Gathering? Gathering { get; set; }
+    public long CategoryId { get; set; }
+    public Category? Category { get; set; }
 }

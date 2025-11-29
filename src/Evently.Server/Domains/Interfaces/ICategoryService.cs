@@ -5,6 +5,6 @@ namespace Evently.Server.Domains.Interfaces;
 
 public interface ICategoryService
 {
-	Task<PageResult<Category>> GetCategories(long? gatheringId, bool? approved);
-	Task<Category> CreateCategory(Category category);
+    Task<PageResult<Category>> GetCategories(long? gatheringId, bool? approved);
+    Task<Category> CreateCategory(Category category);
 }

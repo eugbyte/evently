@@ -9,7 +9,7 @@ namespace Evently.Server.Domains.Entities;
 [SuppressMessage("ReSharper", "CollectionNeverUpdated.Global")]
 public class Account : IdentityUser
 {
-	[StringLength(100)]
-	public string Name { get; set; } = string.Empty;
-	public List<Booking> Bookings { get; set; } = [];
+    [StringLength(100)]
+    public string Name { get; set; } = string.Empty;
+    public List<Booking> Bookings { get; set; } = [];
 }

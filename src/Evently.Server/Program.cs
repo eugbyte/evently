@@ -26,10 +26,10 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 ConfigurationManager config = builder.Configuration;
 
 ILoggerFactory logFactory = LoggerFactory.Create(
-	(logBuilder) =>
-	{
-		logBuilder.AddSimpleConsole((opts) => opts.ColorBehavior = LoggerColorBehavior.Disabled);
-	}
+    (logBuilder) =>
+    {
+        logBuilder.AddSimpleConsole((opts) => opts.ColorBehavior = LoggerColorBehavior.Disabled);
+    }
 );
 ILogger<Program> logger = logFactory.CreateLogger<Program>();
 
@@ -40,23 +40,23 @@ IOptions<Settings> settings = builder.Services.LoadAppConfiguration(config);
 string? dbConnStr = builder.Configuration.GetConnectionString("WebApiDatabase");
 logger.LogValue("dbConnStr", dbConnStr);
 builder.Services.AddDbContext<AppDbContext>(
-	(options) =>
-	{
-		options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-		options.UseSqlServer(
-			dbConnStr,
-			sqlServerOptionsAction: opt =>
-				opt.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
-		);
-	}
+    (options) =>
+    {
+        options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+        options.UseSqlServer(
+            dbConnStr,
+            sqlServerOptionsAction: opt =>
+                opt.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+        );
+    }
 );
 
 // Add services to the container.
 builder
-	.Services.AddControllersWithViews()
-	.AddJsonOptions(
-		(options) => options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles
-	);
+    .Services.AddControllersWithViews()
+    .AddJsonOptions(
+        (options) => options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles
+    );
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -91,39 +91,39 @@ builder.Services.AddIdentityApiEndpoints<Account>().AddEntityFrameworkStores<App
 // https://learn.microsoft.com/en-us/dotnet/core/compatibility/aspnet-core/7.0/default-authentication-scheme#new-behavior
 // No default auth scheme is set
 builder
-	.Services.AddAuthentication()
-	.AddCookie()
-	.AddGoogle(
-		(options) =>
-		{
-			options.ClientId = settings.Value.Authentication.Google.ClientId;
-			options.ClientSecret = settings.Value.Authentication.Google.ClientSecret;
-			options.CallbackPath = "/api/signin-google"; // rmb to resister in the Google oauth dashboard
-			options.SignInScheme = IdentityConstants.ExternalScheme; // important to default to external scheme - https://stackoverflow.com/a/78674926/6514532
+    .Services.AddAuthentication()
+    .AddCookie()
+    .AddGoogle(
+        (options) =>
+        {
+            options.ClientId = settings.Value.Authentication.Google.ClientId;
+            options.ClientSecret = settings.Value.Authentication.Google.ClientSecret;
+            options.CallbackPath = "/api/signin-google"; // rmb to resister in the Google oauth dashboard
+            options.SignInScheme = IdentityConstants.ExternalScheme; // important to default to external scheme - https://stackoverflow.com/a/78674926/6514532
 
-			// Enable refresh token
-			options.SaveTokens = true;
-			options.AccessType = "offline";
+            // Enable refresh token
+            options.SaveTokens = true;
+            options.AccessType = "offline";
 
-			// For debugging purpose
-			options.Events.OnRedirectToAuthorizationEndpoint = (context) =>
-			{
-				logger.LogInformation(
-					"Request Path: {Request}",
-					context.Request.RootUri().AbsoluteUri
-				);
-				context.HttpContext.Response.Redirect(context.RedirectUri);
-				return Task.CompletedTask;
-			};
-		}
-	);
+            // For debugging purpose
+            options.Events.OnRedirectToAuthorizationEndpoint = (context) =>
+            {
+                logger.LogInformation(
+                    "Request Path: {Request}",
+                    context.Request.RootUri().AbsoluteUri
+                );
+                context.HttpContext.Response.Redirect(context.RedirectUri);
+                return Task.CompletedTask;
+            };
+        }
+    );
 
 builder
-	.Services.AddAuthorizationBuilder()
-	.AddPolicy(
-		SameAccountRequirement.PolicyName,
-		configurePolicy: (policy) => policy.Requirements.Add(new SameAccountRequirement())
-	);
+    .Services.AddAuthorizationBuilder()
+    .AddPolicy(
+        SameAccountRequirement.PolicyName,
+        configurePolicy: (policy) => policy.Requirements.Add(new SameAccountRequirement())
+    );
 
 // Add razor pages support to render Blazor files
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
@@ -134,8 +134,8 @@ WebApplication app = builder.Build();
 
 using (IServiceScope serviceScope = app.Services.CreateScope())
 {
-	AppDbContext dbContext = serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
-	await dbContext.Database.MigrateAsync();
+    AppDbContext dbContext = serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await dbContext.Database.MigrateAsync();
 }
 
 // Use the global exception handler
@@ -151,7 +151,7 @@ app.MapRazorComponents<BlazorApp>().AddInteractiveServerRenderMode();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-	app.MapOpenApi();
+    app.MapOpenApi();
 }
 
 app.UseHttpsRedirection();
