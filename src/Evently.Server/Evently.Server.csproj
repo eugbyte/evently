@@ -50,6 +50,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Common\Adapters\Data\Migrations\"/>
+      <_ContentIncludedByDefault Remove="Common\Adapters\Blazor\BlazorApp.razor" />
+      <_ContentIncludedByDefault Remove="Common\Adapters\Blazor\Routes.razor" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AdditionalFiles Include="Common\Blazor\BlazorApp.razor" />
+      <AdditionalFiles Include="Common\Blazor\Routes.razor" />
     </ItemGroup>
 </Project>

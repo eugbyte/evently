@@ -3,8 +3,8 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Navbar, NotFound } from "~/lib/components";
 import { type JSX, useEffect } from "react";
 import { getAccount } from "~/lib/services";
-import { Account } from "~/lib/domains/entities";
-import type { RouteContext } from "~/lib/domains/interfaces/route-context.ts";
+import { Account } from "~/domains/entities";
+import type { RouteContext } from "~/domains/interfaces/route-context.ts";
 import polyfill from "@oddbird/css-anchor-positioning/fn";
 
 export const Route = createRootRouteWithContext<RouteContext>()({

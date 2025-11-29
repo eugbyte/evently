@@ -3,8 +3,8 @@
 namespace Evently.Server.Common.Middlewares;
 
 public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IExceptionHandler {
-
-	public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken) {
+	public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception,
+		CancellationToken cancellationToken) {
 		string exceptionMessage = exception.Message;
 		logger.LogError(
 			"Error Message: {exceptionMessage}, Time of occurrence {time}",

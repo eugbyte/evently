@@ -1,5 +1,5 @@
-﻿using Evently.Server.Common.Domains.Entities;
-using Evently.Server.Common.Domains.Models;
+﻿using Evently.Server.Domains.Entities;
+using Evently.Server.Domains.Models;
 
 namespace Evently.Server.Common.Extensions;
 

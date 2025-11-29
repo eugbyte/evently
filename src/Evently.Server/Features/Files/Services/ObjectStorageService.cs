@@ -2,9 +2,9 @@
 using Azure.AI.ContentSafety;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using Evently.Server.Common.Domains.Interfaces;
-using Evently.Server.Common.Domains.Models;
 using Evently.Server.Common.Extensions;
+using Evently.Server.Domains.Interfaces;
+using Evently.Server.Domains.Models;
 using Microsoft.Extensions.Options;
 
 namespace Evently.Server.Features.Files.Services;
@@ -26,7 +26,8 @@ public sealed class ObjectStorageService : IObjectStorageService {
 				credential: new AzureKeyCredential(settings.Value.AzureAiFoundry.ContentSafetyKey));
 		} catch (Exception ex) {
 			// silence the error
-			_logger.LogError("error creating content safety client: {message}. Content moderation skipped.", ex.Message);
+			_logger.LogError("error creating content safety client: {message}. Content moderation skipped.",
+				ex.Message);
 		}
 	}
 

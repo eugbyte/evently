@@ -1,7 +1,7 @@
-using Evently.Server.Common.Domains.Entities;
-using Evently.Server.Common.Domains.Interfaces;
-using Evently.Server.Common.Domains.Models;
 using Evently.Server.Common.Extensions;
+using Evently.Server.Domains.Entities;
+using Evently.Server.Domains.Interfaces;
+using Evently.Server.Domains.Models;
 using Evently.Server.Features.Accounts.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
@@ -11,7 +11,10 @@ namespace Evently.Server.Features.Bookings.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
-public sealed class BookingsController(IBookingService bookingService, ChannelWriter<string> emailQueue, ILogger<BookingsController> logger)
+public sealed class BookingsController(
+	IBookingService bookingService,
+	ChannelWriter<string> emailQueue,
+	ILogger<BookingsController> logger)
 	: ControllerBase {
 	[HttpGet("{bookingId}", Name = "GetBooking")]
 	public async Task<ActionResult<Booking>> GetBooking(string bookingId) {
@@ -35,7 +38,8 @@ public sealed class BookingsController(IBookingService bookingService, ChannelWr
 		long? gatheringId,
 		DateTimeOffset? checkInStart,
 		DateTimeOffset? checkInEnd,
-		DateTimeOffset? gatheringStartBefore, DateTimeOffset? gatheringStartAfter, DateTimeOffset? gatheringEndBefore, DateTimeOffset? gatheringEndAfter,
+		DateTimeOffset? gatheringStartBefore, DateTimeOffset? gatheringStartAfter, DateTimeOffset? gatheringEndBefore,
+		DateTimeOffset? gatheringEndAfter,
 		bool isCancelled,
 		int? offset,
 		int? limit) {

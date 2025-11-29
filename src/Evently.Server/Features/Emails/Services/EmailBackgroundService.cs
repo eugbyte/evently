@@ -1,6 +1,6 @@
-﻿using Evently.Server.Common.Domains.Entities;
-using Evently.Server.Common.Domains.Interfaces;
-using Evently.Server.Common.Extensions;
+﻿using Evently.Server.Common.Extensions;
+using Evently.Server.Domains.Entities;
+using Evently.Server.Domains.Interfaces;
 using System.Threading.Channels;
 
 namespace Evently.Server.Features.Emails.Services;
@@ -22,6 +22,7 @@ public sealed class EmailBackgroundService(
 				if (booking?.Account?.Email is null) {
 					continue;
 				}
+
 				Account account = booking.Account;
 
 				string html = await bookingService.RenderTicket(bookingId);

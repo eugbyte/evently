@@ -1,7 +1,7 @@
-﻿using Evently.Server.Common.Domains.Entities;
-using Evently.Server.Common.Domains.Interfaces;
-using Evently.Server.Common.Domains.Models;
-using Evently.Server.Common.Extensions;
+﻿using Evently.Server.Common.Extensions;
+using Evently.Server.Domains.Entities;
+using Evently.Server.Domains.Interfaces;
+using Evently.Server.Domains.Models;
 using Evently.Server.Features.Accounts.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -27,6 +27,7 @@ public sealed class GatheringsController(
 		if (customer is null) {
 			return NotFound();
 		}
+
 		return Ok(customer);
 	}
 
@@ -34,7 +35,8 @@ public sealed class GatheringsController(
 	public async Task<ActionResult<List<Gathering>>> GetGatherings(string? attendeeId,
 		string? organiserId,
 		string? name,
-		DateTimeOffset? startDateBefore, DateTimeOffset? startDateAfter, DateTimeOffset? endDateBefore, DateTimeOffset? endDateAfter,
+		DateTimeOffset? startDateBefore, DateTimeOffset? startDateAfter, DateTimeOffset? endDateBefore,
+		DateTimeOffset? endDateAfter,
 		bool? isCancelled,
 		[FromQuery(Name = "categoryIds[]")] long[]? categoryIds,
 		int? offset, int? limit) {
@@ -58,7 +60,8 @@ public sealed class GatheringsController(
 	}
 
 	[HttpPost("", Name = "CreateGathering")]
-	public async Task<ActionResult<Gathering>> CreateGathering([FromForm] GatheringReqDto gatheringReqDto, [FromForm] IFormFile? coverImg) {
+	public async Task<ActionResult<Gathering>> CreateGathering([FromForm] GatheringReqDto gatheringReqDto,
+		[FromForm] IFormFile? coverImg) {
 		gatheringReqDto = gatheringReqDto with { GatheringId = 0L };
 
 		AuthenticateResult authenticationResult =
@@ -77,7 +80,8 @@ public sealed class GatheringsController(
 	}
 
 	[HttpPut("{gatheringId:long}", Name = "UpdateGathering")]
-	public async Task<ActionResult> UpdateGathering(long gatheringId, [FromForm] GatheringReqDto gatheringReqDto, [FromForm] IFormFile? coverImg) {
+	public async Task<ActionResult> UpdateGathering(long gatheringId, [FromForm] GatheringReqDto gatheringReqDto,
+		[FromForm] IFormFile? coverImg) {
 		Gathering? gathering = await gatheringService.GetGathering(gatheringId);
 		if (gathering is null) {
 			return NotFound();
@@ -118,6 +122,7 @@ public sealed class GatheringsController(
 		if (!isContentSafe) {
 			return string.Empty;
 		}
+
 		Uri uri = await objectStorageService.UploadFile(_containerName,
 			fileName,
 			binaryData,

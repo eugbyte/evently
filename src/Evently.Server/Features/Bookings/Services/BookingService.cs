@@ -1,15 +1,16 @@
 using Evently.Server.Common.Adapters.Data;
-using Evently.Server.Common.Domains.Entities;
-using Evently.Server.Common.Domains.Interfaces;
-using Evently.Server.Common.Domains.Models;
+using Evently.Server.Common.Data;
 using Evently.Server.Common.Extensions;
+using Evently.Server.Domains.Entities;
+using Evently.Server.Domains.Interfaces;
+using Evently.Server.Domains.Models;
 using Evently.Server.Features.Emails.Views;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NanoidDotNet;
 using System.Text.Json;
-using ValidationResult=FluentValidation.Results.ValidationResult;
+using ValidationResult = FluentValidation.Results.ValidationResult;
 
 namespace Evently.Server.Features.Bookings.Services;
 
@@ -33,7 +34,8 @@ public sealed class BookingService(
 
 	public async Task<PageResult<Booking>> GetBookings(string? accountId, long? gatheringId,
 		DateTimeOffset? checkInStart, DateTimeOffset? checkInEnd,
-		DateTimeOffset? gatheringStartBefore, DateTimeOffset? gatheringStartAfter, DateTimeOffset? gatheringEndBefore, DateTimeOffset? gatheringEndAfter,
+		DateTimeOffset? gatheringStartBefore, DateTimeOffset? gatheringStartAfter, DateTimeOffset? gatheringEndBefore,
+		DateTimeOffset? gatheringEndAfter,
 		bool? isCancelled, int? offset, int? limit) {
 		IQueryable<Booking> query = db.Bookings
 			.Where((b) => accountId == null || b.AttendeeId == accountId)
@@ -41,8 +43,10 @@ public sealed class BookingService(
 			.Where((c) => checkInStart == null || checkInStart <= c.CheckInDateTime)
 			.Where((b) => checkInEnd == null || b.CheckInDateTime <= checkInEnd)
 			.Where((b) => isCancelled == null || b.CancellationDateTime.HasValue == isCancelled)
-			.Where((b) => gatheringStartBefore == null || b.Gathering != null && b.Gathering.Start <= gatheringStartBefore)
-			.Where((b) => gatheringStartAfter == null || b.Gathering != null && b.Gathering.Start >= gatheringStartAfter)
+			.Where((b) =>
+				gatheringStartBefore == null || b.Gathering != null && b.Gathering.Start <= gatheringStartBefore)
+			.Where((b) =>
+				gatheringStartAfter == null || b.Gathering != null && b.Gathering.Start >= gatheringStartAfter)
 			.Where((b) => gatheringEndBefore == null || b.Gathering != null && b.Gathering.End <= gatheringEndBefore)
 			.Where((b) => gatheringEndAfter == null || b.Gathering != null && b.Gathering.End >= gatheringEndAfter)
 			.Include((b) => b.Account)
@@ -68,7 +72,8 @@ public sealed class BookingService(
 		Booking booking = bookingReqDto.ToBooking();
 		ValidationResult validationResult = await validator.ValidateAsync(booking);
 		if (!validationResult.IsValid) {
-			throw new ArgumentException($"Account has already booked this gathering (GatheringId: {booking.GatheringId})");
+			throw new ArgumentException(
+				$"Account has already booked this gathering (GatheringId: {booking.GatheringId})");
 		}
 
 		booking.BookingId = $"book_{await Nanoid.GenerateAsync(size: 10)}";

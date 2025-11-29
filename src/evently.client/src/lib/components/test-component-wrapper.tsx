@@ -1,5 +1,5 @@
 ﻿import type { JSX, ReactNode } from "react";
-import { Account } from "~/lib/domains/entities";
+import { Account } from "~/domains/entities";
 import {
 	type AnyRoute,
 	createMemoryHistory,
@@ -9,7 +9,7 @@ import {
 	Outlet,
 	RouterProvider
 } from "@tanstack/react-router";
-import type { RouteContext } from "~/lib/domains/interfaces";
+import type { RouteContext } from "~/domains/interfaces";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 interface TestComponentProps {

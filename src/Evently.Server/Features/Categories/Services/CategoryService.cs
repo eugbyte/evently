@@ -1,7 +1,8 @@
 ﻿using Evently.Server.Common.Adapters.Data;
-using Evently.Server.Common.Domains.Entities;
-using Evently.Server.Common.Domains.Interfaces;
-using Evently.Server.Common.Domains.Models;
+using Evently.Server.Common.Data;
+using Evently.Server.Domains.Entities;
+using Evently.Server.Domains.Interfaces;
+using Evently.Server.Domains.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Evently.Server.Features.Categories.Services;
@@ -17,7 +18,8 @@ public sealed class CategoryService(AppDbContext db) : ICategoryService {
 		IQueryable<Category> query = db.Categories
 			.Include((category) => category.GatheringCategoryDetails)
 			.Where((category) =>
-				gatheringId == null || category.GatheringCategoryDetails.Any((detail) => detail.GatheringId == gatheringId))
+				gatheringId == null ||
+				category.GatheringCategoryDetails.Any((detail) => detail.GatheringId == gatheringId))
 			.Where((category) => approved == null || category.Approved == approved);
 
 		int totalCount = await query.CountAsync();

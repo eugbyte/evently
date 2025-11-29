@@ -1,4 +1,4 @@
-using Evently.Server.Common.Domains.Entities;
+using Evently.Server.Domains.Entities;
 using FluentValidation;
 
 namespace Evently.Server.Features.Gatherings.Services;

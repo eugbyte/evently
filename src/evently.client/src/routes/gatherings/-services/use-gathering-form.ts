@@ -1,5 +1,5 @@
 ﻿import { useForm } from "@tanstack/react-form";
-import { GatheringReqDto } from "~/lib/domains/models";
+import { GatheringReqDto } from "~/domains/models";
 
 export function useGatheringForm(
 	defaultGathering: GatheringReqDto,

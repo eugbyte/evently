@@ -1,7 +1,7 @@
-﻿import type { Gathering } from "~/lib/domains/entities";
+﻿import type { Gathering } from "~/domains/entities";
 import axios from "axios";
-import { GatheringCategoryDetailReqDto, GatheringReqDto } from "~/lib/domains/models";
-import type { PageResult } from "~/lib/domains/interfaces";
+import { GatheringCategoryDetailReqDto, GatheringReqDto } from "~/domains/models";
+import type { PageResult } from "~/domains/interfaces";
 import cloneDeep from "lodash.clonedeep";
 
 export interface GetGatheringsParams {

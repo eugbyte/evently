@@ -1,11 +1,11 @@
-﻿using Evently.Server.Common.Domains.Interfaces;
+﻿using Evently.Server.Domains.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web.HtmlRendering;
 using PdfSharp;
 using PdfSharp.Pdf;
 using QRCoder;
 using TheArtOfDev.HtmlRenderer.PdfSharp;
-using BlazorHtmlRenderer=Microsoft.AspNetCore.Components.Web.HtmlRenderer;
+using BlazorHtmlRenderer = Microsoft.AspNetCore.Components.Web.HtmlRenderer;
 
 namespace Evently.Server.Features.Emails.Services;
 

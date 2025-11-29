@@ -1,4 +1,4 @@
-﻿using Evently.Server.Common.Domains.Models;
+﻿using Evently.Server.Domains.Models;
 using Microsoft.Extensions.Options;
 
 namespace Evently.Server.Common.Extensions;

@@ -1,6 +1,6 @@
-﻿using Evently.Server.Common.Domains.Entities;
-using Evently.Server.Common.Domains.Exceptions;
-using Evently.Server.Common.Domains.Interfaces;
+﻿using Evently.Server.Domains.Entities;
+using Evently.Server.Domains.Exceptions;
+using Evently.Server.Domains.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using System.Text.RegularExpressions;

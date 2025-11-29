@@ -1,5 +1,5 @@
 import { type JSX, type Ref, useEffect, useRef } from "react";
-import { Booking } from "~/lib/domains/entities";
+import { Booking } from "~/domains/entities";
 import QRCode from "qrcode";
 
 // 1. Define the props for the child component

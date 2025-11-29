@@ -1,6 +1,6 @@
-using Evently.Server.Common.Domains.Interfaces;
-using Evently.Server.Common.Domains.Models;
 using Evently.Server.Common.Extensions;
+using Evently.Server.Domains.Interfaces;
+using Evently.Server.Domains.Models;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
 using MimeKit;

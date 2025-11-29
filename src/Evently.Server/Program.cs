@@ -1,10 +1,10 @@
-using Evently.Server.Common.Adapters.Blazor;
-using Evently.Server.Common.Adapters.Data;
-using Evently.Server.Common.Domains.Entities;
-using Evently.Server.Common.Domains.Interfaces;
-using Evently.Server.Common.Domains.Models;
+using Evently.Server.Common.Blazor;
+using Evently.Server.Common.Data;
 using Evently.Server.Common.Extensions;
 using Evently.Server.Common.Middlewares;
+using Evently.Server.Domains.Entities;
+using Evently.Server.Domains.Interfaces;
+using Evently.Server.Domains.Models;
 using Evently.Server.Features.Accounts.Services;
 using Evently.Server.Features.Bookings.Services;
 using Evently.Server.Features.Categories.Services;
@@ -34,7 +34,6 @@ ILogger<Program> logger = logFactory.CreateLogger<Program>();
 IOptions<Settings> settings = builder.Services.LoadAppConfiguration(config);
 
 // register DB
-// retrieve the heroku postgres db conn string, otherwise, get the local default
 string? dbConnStr = builder.Configuration.GetConnectionString("WebApiDatabase");
 logger.LogValue("dbConnStr", dbConnStr);
 builder.Services.AddDbContext<AppDbContext>((options) => {

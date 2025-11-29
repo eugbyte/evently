@@ -1,8 +1,9 @@
 ﻿using Evently.Server.Common.Adapters.Data;
-using Evently.Server.Common.Domains.Entities;
-using Evently.Server.Common.Domains.Interfaces;
-using Evently.Server.Common.Domains.Models;
+using Evently.Server.Common.Data;
 using Evently.Server.Common.Extensions;
+using Evently.Server.Domains.Entities;
+using Evently.Server.Domains.Interfaces;
+using Evently.Server.Domains.Models;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
@@ -39,7 +40,8 @@ public sealed class GatheringService(AppDbContext db, IValidator<Gathering> vali
 			.Where((gathering) => organiserId == null || gathering.OrganiserId == organiserId)
 			.Where(gathering => isCancelled == null || gathering.CancellationDateTime.HasValue == isCancelled)
 			.Where((gathering) =>
-				categoryIds == null || categoryIds.Count == 0 || gathering.GatheringCategoryDetails.Any(detail => categoryIds.Contains(detail.CategoryId)))
+				categoryIds == null || categoryIds.Count == 0 ||
+				gathering.GatheringCategoryDetails.Any(detail => categoryIds.Contains(detail.CategoryId)))
 			.Where((gathering) =>
 				attendeeId == null || gathering.Bookings.Any((be) => be.AttendeeId == attendeeId))
 			.Include(gathering => gathering.Bookings.Where((be) => be.AttendeeId == attendeeId))

@@ -1,4 +1,4 @@
-﻿import { Booking, Gathering } from "~/lib/domains/entities";
+﻿import { Booking, Gathering } from "~/domains/entities";
 import {
 	downloadFile,
 	getBookings,
@@ -15,7 +15,7 @@ import { json2csv } from "json-2-csv";
 import { useQuery } from "@tanstack/react-query";
 import { BookingsTable, Jumbotron, StatsCard } from "./-components";
 import { useInterval } from "usehooks-ts";
-import type { PageResult } from "~/lib/domains/interfaces";
+import type { PageResult } from "~/domains/interfaces";
 
 export const Route = createFileRoute("/bookings/(auth)/hosting/$gatheringId/dashboard/")({
 	loader: async ({ params }) => {

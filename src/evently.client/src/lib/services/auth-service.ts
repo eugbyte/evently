@@ -1,6 +1,6 @@
 import { redirect } from "@tanstack/react-router";
 import axios, { type AxiosResponse } from "axios";
-import { Account } from "~/lib/domains/entities";
+import { Account } from "~/domains/entities";
 import { sleep } from "~/lib/services/util-service";
 
 export async function login(redirectUrl: string) {
