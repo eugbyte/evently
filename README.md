@@ -51,8 +51,8 @@ docker-compose up --build
 
 ### ⚙️ Backend
 
-- **Framework**: .NET 9.0 with ASP.NET Core
-- **Language**: C# 13.0
+- **Framework**: .NET 10.0 with ASP.NET Core
+- **Language**: C# 14.0
 - **UI Framework**: Blazor Server components
 - **Architecture**: Web API with MVC pattern
 
@@ -75,7 +75,7 @@ docker-compose up --build
 
 ### Prerequisites
 
-- .NET 9.0 SDK
+- .NET 10.0 SDK
 - Node.js (with npm/pnpm)
 - Docker (optional)
 - pnpm
